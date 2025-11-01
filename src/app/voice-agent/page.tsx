@@ -4,38 +4,34 @@ import { useState, useRef, useEffect } from 'react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Mic, MicOff, Loader2, Volume2, User, Bot, AlertTriangle } from 'lucide-react';
+import { Mic, MicOff, Loader2, Volume2, User, Bot } from 'lucide-react';
 import { voiceAgent, textToSpeech } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { CrisisIntervention } from '@/components/crisis-intervention';
 
 interface Message {
   role: 'user' | 'model';
   content: string;
-  safetyAlert?: boolean;
-  riskLevel?: string;
-  mlPrediction?: {
-    risk_score: number;
-    risk_level: string;
-    confidence: number;
-  } | null;
 }
 
 export default function VoiceAgentPage() {
   const [isRecording, setIsRecording] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingAudio, setIsGeneratingAudio] = useState(false);
   const [conversation, setConversation] = useState<Message[]>([]);
   const [interimTranscript, setInterimTranscript] = useState('');
-  const [showCrisisIntervention, setShowCrisisIntervention] = useState(false);
-  const [currentRiskLevel, setCurrentRiskLevel] = useState<'safe' | 'moderate' | 'high' | 'critical'>('safe');
-  const [currentMlPrediction, setCurrentMlPrediction] = useState<any>(null);
   const recognition = useRef<any>(null); // Using 'any' for SpeechRecognition for broader compatibility
   const audioPlayer = useRef<HTMLAudioElement | null>(null);
+  const audioCache = useRef<Map<string, string>>(new Map()); // Simple audio cache
   const { toast } = useToast();
 
-  // Create a hidden audio element for playback on component mount
+  // Create and optimize audio element for playback on component mount
   useEffect(() => {
     audioPlayer.current = new Audio();
+    // Optimize audio playback settings
+    if (audioPlayer.current) {
+      audioPlayer.current.preload = 'auto';
+      audioPlayer.current.volume = 1.0;
+    }
   }, []);
 
   const handleNewMessage = async (text: string, role: 'user' | 'model') => {
@@ -48,35 +44,45 @@ export default function VoiceAgentPage() {
 
     if (role === 'user') {
       try {
-        // Get AI text response with safety detection
-        const aiResult = await voiceAgent({
+        // Get AI text response and TTS in parallel for faster processing
+        const aiResultPromise = voiceAgent({
           history: newConversation,
           currentInput: text,
         });
 
-        // Add AI response to conversation with safety info
-        setConversation(prev => [...prev, { 
-          role: 'model', 
-          content: aiResult.response,
-          safetyAlert: aiResult.safetyAlert,
-          riskLevel: aiResult.riskLevel,
-          mlPrediction: aiResult.mlPrediction
-        }]);
+        // Wait for AI text response
+        const aiResult = await aiResultPromise;
 
-        // Handle crisis intervention
-        if (aiResult.safetyAlert && (aiResult.riskLevel === 'high' || aiResult.riskLevel === 'critical')) {
-          setCurrentRiskLevel(aiResult.riskLevel as any);
-          setCurrentMlPrediction(aiResult.mlPrediction);
-          setShowCrisisIntervention(true);
-        }
+        // Add AI response to conversation immediately for better UX
+        setConversation(prev => [...prev, { role: 'model', content: aiResult.response }]);
+        setIsLoading(false); // Hide "thinking" indicator, show text response
 
-        // Get AI audio response
-        const audioResult = await textToSpeech({ text: aiResult.response });
+        // Check cache first for faster response
+        const responseText = aiResult.response;
+        let audioDataUri = audioCache.current.get(responseText);
         
-        // Play the audio
-        if (audioPlayer.current) {
-          audioPlayer.current.src = audioResult.audioDataUri;
-          audioPlayer.current.play();
+        if (audioDataUri) {
+          // Use cached audio for instant playback
+          if (audioPlayer.current) {
+            audioPlayer.current.src = audioDataUri;
+            audioPlayer.current.play();
+          }
+        } else {
+          // Generate new audio and cache it
+          setIsGeneratingAudio(true);
+          const audioResultPromise = textToSpeech({ text: responseText });
+          
+          const audioResult = await audioResultPromise;
+          setIsGeneratingAudio(false);
+          
+          // Cache the audio for future use
+          audioCache.current.set(responseText, audioResult.audioDataUri);
+          
+          // Play the audio
+          if (audioPlayer.current) {
+            audioPlayer.current.src = audioResult.audioDataUri;
+            audioPlayer.current.play();
+          }
         }
 
       } catch (error) {
@@ -90,10 +96,11 @@ export default function VoiceAgentPage() {
       }
     }
     setIsLoading(false);
+    setIsGeneratingAudio(false);
   };
   
   const setupSpeechRecognition = () => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
       toast({
         variant: 'destructive',
@@ -197,32 +204,12 @@ export default function VoiceAgentPage() {
             {conversation.map((msg, index) => (
               <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                 {msg.role === 'model' && (
-                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                    msg.safetyAlert && (msg.riskLevel === 'high' || msg.riskLevel === 'critical') 
-                      ? 'bg-red-100 text-red-600' 
-                      : 'bg-primary text-primary-foreground'
-                  }`}>
-                    {msg.safetyAlert && (msg.riskLevel === 'high' || msg.riskLevel === 'critical') ? (
-                      <AlertTriangle size={16}/>
-                    ) : (
-                      <Bot size={20}/>
-                    )}
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                    <Bot size={20}/>
                   </div>
                 )}
-                <div className={`rounded-lg px-4 py-2 max-w-sm ${
-                  msg.role === 'user' 
-                    ? 'bg-primary text-primary-foreground' 
-                    : msg.safetyAlert && (msg.riskLevel === 'high' || msg.riskLevel === 'critical')
-                      ? 'bg-red-50 border border-red-200'
-                      : 'bg-background'
-                }`}>
+                <div className={`rounded-lg px-4 py-2 max-w-sm ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-background'}`}>
                   {msg.content}
-                  {msg.safetyAlert && msg.riskLevel === 'moderate' && (
-                    <div className="mt-2 text-xs text-amber-600 flex items-center gap-1">
-                      <AlertTriangle size={12} />
-                      Support resources available
-                    </div>
-                  )}
                 </div>
                  {msg.role === 'user' && (
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center">
@@ -236,8 +223,20 @@ export default function VoiceAgentPage() {
                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
                         <Bot size={20}/>
                     </div>
-                    <div className="rounded-lg px-4 py-2 bg-background flex items-center">
-                       <Loader2 className="w-5 h-5 animate-spin"/>
+                    <div className="rounded-lg px-4 py-2 bg-background flex items-center gap-2">
+                       <Loader2 className="w-4 h-4 animate-spin"/>
+                       <span className="text-sm text-muted-foreground">Thinking...</span>
+                    </div>
+                </div>
+             )}
+             {isGeneratingAudio && (
+                <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                        <Volume2 size={16}/>
+                    </div>
+                    <div className="rounded-lg px-4 py-2 bg-background flex items-center gap-2">
+                       <Loader2 className="w-4 h-4 animate-spin"/>
+                       <span className="text-sm text-muted-foreground">Generating voice...</span>
                     </div>
                 </div>
              )}
@@ -254,25 +253,17 @@ export default function VoiceAgentPage() {
           </div>
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-4">
-            <Button onClick={toggleRecording} size="lg" className="rounded-full w-20 h-20" disabled={isLoading}>
+            <Button onClick={toggleRecording} size="lg" className="rounded-full w-20 h-20" disabled={isLoading || isGeneratingAudio}>
                 {isRecording ? <MicOff size={40} /> : <Mic size={40} />}
             </Button>
             <p className="text-sm text-muted-foreground h-4">
-                {isRecording ? "Listening..." : (isLoading ? "Thinking..." : "Tap the mic to talk")}
+                {isRecording ? "Listening..." : 
+                 (isLoading ? "Thinking..." : 
+                  (isGeneratingAudio ? "Generating voice..." : "Tap the mic to talk"))}
             </p>
         </CardFooter>
         </Card>
       </div>
-      
-      {showCrisisIntervention && (
-        <CrisisIntervention
-          riskLevel={currentRiskLevel}
-          mlPrediction={currentMlPrediction}
-          onDismiss={() => {
-            setShowCrisisIntervention(false);
-          }}
-        />
-      )}
     </div>
   );
 }

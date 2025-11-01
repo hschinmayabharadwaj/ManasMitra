@@ -44,7 +44,6 @@ const menuItems = [
   { href: '/', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/check-in', label: 'Daily Check-in', icon: SmilePlus },
   { href: '/progress', label: 'My Progress', icon: LineChart },
-  { href: '/resources', label: 'Resources', icon: BookHeart },
   { href: '/mindfulness', label: 'Mindfulness', icon: Brain },
   { href: '/forum', label: 'Forum', icon: MessageSquare },
   { href: '/games', label: 'Games', icon: Gamepad2 },

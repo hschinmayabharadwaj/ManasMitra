@@ -47,22 +47,35 @@ export async function textToSpeech(input: TTSInput): Promise<TTSOutput> {
 }
 
 
-// Helper function to convert PCM audio data from Gemini to WAV format
+// Optimized helper function to convert PCM audio data from Gemini to WAV format
 async function toWav(pcmData: Buffer): Promise<string> {
     return new Promise((resolve, reject) => {
-        const writer = new wav.Writer({
-            channels: 1,
-            sampleRate: 24000,
-            bitDepth: 16,
-        });
+        try {
+            const writer = new wav.Writer({
+                channels: 1,
+                sampleRate: 24000,
+                bitDepth: 16,
+            });
 
-        const buffers: Buffer[] = [];
-        writer.on('data', (chunk) => buffers.push(chunk));
-        writer.on('end', () => resolve(Buffer.concat(buffers).toString('base64')));
-        writer.on('error', reject);
+            const buffers: Buffer[] = [];
+            
+            writer.on('data', (chunk) => buffers.push(chunk));
+            writer.on('end', () => {
+                try {
+                    const finalBuffer = Buffer.concat(buffers);
+                    resolve(finalBuffer.toString('base64'));
+                } catch (error) {
+                    reject(error);
+                }
+            });
+            writer.on('error', reject);
 
-        writer.write(pcmData);
-        writer.end();
+            // Process audio data efficiently
+            writer.write(pcmData);
+            writer.end();
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 
@@ -76,7 +89,7 @@ const voiceAgentPrompt = ai.definePrompt({
 - **Be Empathetic:** Start by acknowledging their feelings (e.g., "It sounds like you're going through a lot," "I hear how difficult that must be.").
 - **Ask Gentle Questions:** Encourage them to explore their feelings without being intrusive (e.g., "What does that feel like for you?", "Can you tell me more about that?").
 - **Offer Encouragement:** Instill hope and reinforce their strengths (e.g., "It takes courage to talk about this," "Remember that you've overcome challenges before.").
-- **Keep it Conversational:** Your responses should be natural, supportive, and not overly clinical. Keep responses to 2-3 sentences to maintain a conversational flow.
+- **Keep it Conversational:** Your responses should be natural, supportive, and not overly clinical. Keep responses to 1-2 sentences maximum for faster voice generation and natural conversation flow.
 - **Do not give medical advice.** Gently redirect if the user asks for a diagnosis or treatment plan.
 
 Conversation History:
@@ -117,6 +130,9 @@ const textToSpeechFlow = ai.defineFlow(
             prebuiltVoiceConfig: { voiceName: 'Algenib' },
           },
         },
+        // Optimize for faster generation
+        maxOutputTokens: 1000, // Limit response length for faster processing
+        temperature: 0.7, // Slightly reduce creativity for more consistent responses
       },
       prompt: text,
     });
