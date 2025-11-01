@@ -182,7 +182,6 @@ export default function ProfilePage() {
     }
   };
 
-
   return (
     <div className="flex-1 flex flex-col">
       <PageHeader breadcrumbs={[{ href: '/', label: 'Dashboard' }, { label: 'Profile' }]} />
