@@ -188,107 +188,107 @@ export default function ProfilePage() {
       <div className="flex-1 p-4 md:p-8">
         <h1 className="text-3xl font-bold font-headline mb-8">My Profile</h1>
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <form onSubmit={handleProfileUpdate}>
-            <CardHeader>
-              <CardTitle>Personal Information</CardTitle>
-              <CardDescription>Update your display name and email.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="displayName">Display Name</Label>
-                <Input
-                  id="displayName"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Your Name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  value={user.email || 'No email provided'}
-                  disabled
-                />
-              </div>
-            </CardContent>
-            <CardFooter>
-              <Button type="submit" disabled={isSaving}>
-                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save Changes
-              </Button>
-            </CardFooter>
-          </form>
-        </Card>
-        
-        <div className="space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Phone Number</CardTitle>
-              <CardDescription>{user.phoneNumber ? 'Your phone number is linked.' : 'Link your phone number.'}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {phoneStep === 1 ? (
-                <form onSubmit={handleSendOtp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number (India)</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="+919876543210"
-                      disabled={isLoadingOtp}
-                    />
-                  </div>
-                  <Button type="submit" disabled={isLoadingOtp} className="w-full">
-                    {isLoadingOtp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {user.phoneNumber ? 'Change Number' : 'Send OTP'}
-                  </Button>
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyOtp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="otp">One-Time Password</Label>
-                    <Input
-                      id="otp"
-                      type="text"
-                      value={otp}
-                      onChange={(e) => setOtp(e.target.value)}
-                      placeholder="Enter 6-digit OTP"
-                      disabled={isLoadingOtp}
-                    />
-                  </div>
-                  <Button type="submit" disabled={isLoadingOtp} className="w-full">
-                    {isLoadingOtp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Verify OTP
-                  </Button>
-                   <Button variant="link" onClick={() => setPhoneStep(1)} className="w-full">
-                        Back
-                    </Button>
-                </form>
-              )}
-               <div id="recaptcha-container" ref={recaptchaContainerRef} className="my-4"></div>
-               {error && <p className="text-destructive text-sm text-center mt-2">{error}</p>}
-            </CardContent>
+          <Card className="lg:col-span-2">
+            <form onSubmit={handleProfileUpdate}>
+              <CardHeader>
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>Update your display name and email.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="displayName">Display Name</Label>
+                  <Input
+                    id="displayName"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Your Name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    value={user.email || 'No email provided'}
+                    disabled
+                  />
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={isSaving}>
+                  {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Save Changes
+                </Button>
+              </CardFooter>
+            </form>
           </Card>
           
-          <Card>
-            <CardHeader>
-              <CardTitle>Security</CardTitle>
-              <CardDescription>Manage your account security settings.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={handlePasswordReset} variant="outline" disabled={!user.email}>
-                Send Password Reset Email
-              </Button>
-              {!user.email && <p className="text-xs text-muted-foreground mt-2">Password reset is only available for accounts with an email address.</p>}
-            </CardContent>
-          </Card>
+          <div className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Phone Number</CardTitle>
+                <CardDescription>{user.phoneNumber ? 'Your phone number is linked.' : 'Link your phone number.'}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {phoneStep === 1 ? (
+                  <form onSubmit={handleSendOtp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="phone">Phone Number (India)</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="+919876543210"
+                        disabled={isLoadingOtp}
+                      />
+                    </div>
+                    <Button type="submit" disabled={isLoadingOtp} className="w-full">
+                      {isLoadingOtp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      {user.phoneNumber ? 'Change Number' : 'Send OTP'}
+                    </Button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleVerifyOtp} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="otp">One-Time Password</Label>
+                      <Input
+                        id="otp"
+                        type="text"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        placeholder="Enter 6-digit OTP"
+                        disabled={isLoadingOtp}
+                      />
+                    </div>
+                    <Button type="submit" disabled={isLoadingOtp} className="w-full">
+                      {isLoadingOtp && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Verify OTP
+                    </Button>
+                    <Button variant="link" onClick={() => setPhoneStep(1)} className="w-full">
+                      Back
+                    </Button>
+                  </form>
+                )}
+                <div id="recaptcha-container" ref={recaptchaContainerRef} className="my-4"></div>
+                {error && <p className="text-destructive text-sm text-center mt-2">{error}</p>}
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle>Security</CardTitle>
+                <CardDescription>Manage your account security settings.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={handlePasswordReset} variant="outline" disabled={!user.email}>
+                  Send Password Reset Email
+                </Button>
+                {!user.email && <p className="text-xs text-muted-foreground mt-2">Password reset is only available for accounts with an email address.</p>}
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
-  </div>
- );
+  );
 }
