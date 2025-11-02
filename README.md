@@ -1,7 +1,7 @@
 # 🧠 ManasMitra: An AI-Powered Mental Wellness Companion
 
 **ManasMitra** is a confidential and empathetic AI-powered mental wellness application designed to support users on their well-being journey.  
-It provides a safe space for self-reflection, personalized encouragement, and access to supportive resources through multi-modal AI interaction.
+It provides a safe space for self-reflection, personalized encouragement, and access to supportive features through multi-modal AI interaction.
 
 ---
 
@@ -18,7 +18,7 @@ A welcoming home screen that greets users personally and displays a unique, **AI
 
 ### 💭 Daily Check-in  
 An intuitive, step-by-step flow allowing users to **log their mood and feelings**.  
-The AI assistant provides **empathetic feedback** and suggests a **wellness resource** based on emotional state.
+The AI assistant provides **empathetic feedback** and personalized suggestions based on emotional state.
 
 ### 🗣️ Voice Agent  
 An interactive, **voice-powered AI companion** offering empathetic, natural conversations using:
@@ -31,9 +31,6 @@ Interactive guided meditation, breathing exercises, and mindful moments with cus
 ### 📈 Progress Tracking  
 Visual insights into mood trends over time to help users **recognize emotional patterns** and **celebrate growth**.
 
-### 📚 Resource Hub  
-A curated collection of **articles, exercises, and guides** on mindfulness, breathing, and emotional awareness.
-
 ### 🤝 Anonymous Support Forum  
 A safe, **anonymous community space** for sharing experiences, offering peer support, and connecting with others.
 
@@ -44,7 +41,7 @@ A safe, **anonymous community space** for sharing experiences, offering peer sup
 ### What Makes ManasMitra Agentic
 - 🧩 **Autonomous Decision-Making:** Each AI agent independently decides responses based on user context.  
 - 🎯 **Goal-Oriented Behavior:** All agents work toward improving user mental wellness.  
-- 🧠 **Multi-Agent Collaboration:** Specialized agents handle tasks like affirmation, empathy, and recommendations.  
+- 🧠 **Multi-Agent Collaboration:** Specialized agents handle tasks like affirmation, empathy, and conversation flow.  
 - 💬 **Proactive Engagement:** The system not only responds but also suggests helpful actions or content.  
 - 🕊️ **Contextual Memory:** Maintains history and patterns for personalized interactions.  
 - 🌱 **Adaptive Responses:** Adjusts tone and behavior based on user emotions.
@@ -59,9 +56,8 @@ A safe, **anonymous community space** for sharing experiences, offering peer sup
 | **2. Chat Agent** | Text-based support | Emotional understanding, proactive suggestions, contextual flow |
 | **3. Daily Affirmation Agent** | Generate uplifting affirmations | Personalized, psychology-based daily encouragement |
 | **4. Empathetic Response Agent** | Handle daily check-ins | Emotional validation, personalized feedback |
-| **5. Resource Recommendation Agent** | Suggest wellness resources | Context-aware recommendations based on user mood |
-| **6. Story Analysis Agent** | Interpret user-created stories | Emotional insight through narrative analysis |
-| **7. Choice Analysis Agent** | Analyze decisions in activities | Behavioral pattern recognition and self-awareness feedback |
+| **5. Story Analysis Agent** | Interpret user-created stories | Emotional insight through narrative analysis |
+| **6. Choice Analysis Agent** | Analyze decisions in activities | Behavioral pattern recognition and self-awareness feedback |
 
 ### Agent Collaboration  
 - ⚙️ **Action Layer:** Coordinates communication among agents  
@@ -70,6 +66,7 @@ A safe, **anonymous community space** for sharing experiences, offering peer sup
 - 🚨 **Crisis Protocol:** Any agent can trigger professional helpline suggestions  
 
 ---
+
 ## 🧠 Voice Agent Architecture
 User Speech Input
 ↓
@@ -155,9 +152,8 @@ cd manasmitra
 # Install dependencies
 npm install
 
-Run the Development Server
+# Run the Development Server
 npm run dev
-
 
 Then open http://localhost:9002 in your browser.
 
