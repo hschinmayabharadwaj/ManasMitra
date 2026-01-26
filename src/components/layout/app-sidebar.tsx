@@ -49,7 +49,7 @@ const menuItems = [
   { href: '/mindfulness', label: 'Mindfulness', icon: Brain },
   { href: '/forum', label: 'Forum', icon: MessageSquare },
   { href: '/games', label: 'Games', icon: Gamepad2 },
-  { href: '/voice-agent', label: 'Voice Agent', icon: Mic },
+  { href: '/voice-agent', label: 'AI Assitance', icon: Mic },
   { href: '/motion-arcade', label: 'Motion Arcade', icon: Rocket },
 ];
 
